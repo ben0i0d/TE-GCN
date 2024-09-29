@@ -41,13 +41,7 @@ class Feeder(Dataset):
     def load_data(self):
         # data: N C V T M
 
-        try:
-            with open(self.label_path) as f:
-                self.sample_name, self.label = pickle.load(f)
-        except:
-            # for pickle file from python2
-            with open(self.label_path, 'rb') as f:
-                self.sample_name, self.label = pickle.load(f, encoding='latin1')
+        self.label = np.load(self.label_path)
 
         # load data
         if self.use_mmap:
