@@ -451,7 +451,7 @@ class Processor():
 
             torch.save(weights, self.arg.model_saved_name + '-' + str(epoch) + '-' + str(int(self.global_step)) + '.pt')
 
-    def eval(self, epoch, save_score=False, loader_name=['test'], wrong_file=None, result_file=None):
+    def eval(self, epoch, save_score=True, loader_name=['test'], wrong_file=None, result_file=None):
         if wrong_file is not None:
             f_w = open(wrong_file, 'w')
         if result_file is not None:
@@ -504,8 +504,6 @@ class Processor():
                 self.val_writer.add_scalar('loss_l1', l1, self.global_step)
                 self.val_writer.add_scalar('acc', accuracy, self.global_step)
 
-            score_dict = dict(
-                zip(self.data_loader[ln].dataset.sample_name, score))
             self.print_log('\tMean {} loss of {} batches: {}.'.format(
                 ln, len(self.data_loader[ln]), np.mean(loss_value)))
             for k in self.arg.show_topk:
@@ -513,9 +511,7 @@ class Processor():
                     k, 100 * self.data_loader[ln].dataset.top_k(score, k)))
 
             if save_score:
-                with open('{}/epoch{}_{}_score.pkl'.format(
-                        self.arg.work_dir, epoch + 1, ln), 'wb') as f:
-                    pickle.dump(score_dict, f)
+                np.save('{}/epoch{}_{}_score.npy'.format(self.arg.work_dir, epoch + 1, ln),score)
 
     def start(self):
         if self.arg.phase == 'train':
